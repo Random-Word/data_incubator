@@ -58,8 +58,8 @@ def gen_data(iterations, steps):
 
 #timed = functools.partial(Q1, thresholder, 10, 3, 10000)
 print("Generating data...")
-data_set = gen_data(1000000, 120)
-print(data_set[0,:,:])
+MAX_SIZE = 10000000
+data_set = gen_data(MAX_SIZE, 60)
 
 print("Q1:")
 print(at_least_at(data_set, 10, 3))
@@ -78,7 +78,3 @@ print(across_the_iron_curtain(data_set, 10))
 
 print("Q6:")
 print(across_the_iron_curtain(data_set, 30))
-
-
-#print(Q1(thresholder, 10, 3, 1000000))
-
