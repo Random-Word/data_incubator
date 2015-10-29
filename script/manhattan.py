@@ -27,7 +27,9 @@ def euclidean(data):
     return np.sqrt(data[:, 0]**2 + data[:, 1]**2)
 
 def at_least_at(data_set, step, distance):
-    return (np.sum(euclidean(data_set[:, step-1, :]) >= distance)) / data_set.size
+    return (np.sum(
+        euclidean(data_set[:, step-1, :]) >= distance)
+        ) / data_set.shape[0]
 
 def at_least_by(data_set, step, distance):
     passed = np.zeros((data_set.shape[0]), dtype=bool)
