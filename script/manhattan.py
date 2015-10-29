@@ -27,7 +27,9 @@ def euclidean(data):
     return np.sqrt(data[:, 0]**2 + data[:, 1]**2)
 
 def at_least_at(data_set, step, distance):
-    return (np.sum(euclidean(data_set[:, step-1, :]) >= distance)) / data_set.size
+    return (np.sum(
+        euclidean(data_set[:, step-1, :]) >= distance)
+        ) / data_set.shape[0]
 
 def at_least_by(data_set, step, distance):
     passed = np.zeros((data_set.shape[0]), dtype=bool)
@@ -59,7 +61,6 @@ def gen_data(iterations, steps):
 #timed = functools.partial(Q1, thresholder, 10, 3, 10000)
 print("Generating data...")
 data_set = gen_data(1000000, 120)
-print(data_set[0,:,:])
 
 print("Q1:")
 print(at_least_at(data_set, 10, 3))
@@ -78,7 +79,3 @@ print(across_the_iron_curtain(data_set, 10))
 
 print("Q6:")
 print(across_the_iron_curtain(data_set, 30))
-
-
-#print(Q1(thresholder, 10, 3, 1000000))
-
