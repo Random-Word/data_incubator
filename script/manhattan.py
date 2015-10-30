@@ -35,7 +35,7 @@ def across_the_iron_curtain(data_set, step):
     return west
 
 def avg_moves_to_distance(data_set, distance):
-    not_reached_mark = np.ndarray((data_set.shape[0]), dtype = np.bool)
+    not_reached_mark = np.zeros((data_set.shape[0]), dtype = np.bool)
     not_reached_mark[:] = True
     steps_required = np.zeros((data_set.shape[0]), dtype = np.uint8)
     for s in range(data_set.shape[1]):
@@ -47,7 +47,7 @@ def avg_moves_to_distance(data_set, distance):
     return steps_required
 
 def gen_data(iterations, steps):
-    data_set = np.ndarray((iterations, steps, 2), dtype=np.int8)
+    data_set = np.zeros((iterations, steps, 2), dtype=np.int8)
     optionsx = [1, 0, -1, 0]
     optionsy = [1, -1]
     for s in range(steps-1):
