@@ -7,9 +7,9 @@ import itertools
 import functools
 import time
 
-MAX_SIZE = 100000
+MAX_SIZE = 10000000
 STEPS = 60
-THREADS = 15
+THREADS = 1500
 
 def euclidean(data):
     return np.sqrt((data[:, 0].astype(np.float64,copy=False)**2)+
@@ -83,10 +83,6 @@ if __name__ == '__main__':
     results = np.zeros((6,THREADS,MAX_SIZE),dtype=bool)
     for i, x in enumerate(gen_async(THREADS, pool)):
         results[:,i,:]=x.get()
-    print("TESTING:")
-    for i in range(THREADS):
-        print(np.sum(results[0,i,:]))
-        print(np.sum(results[0,i,:])/results.shape[2])
     results = np.reshape(results, (6,THREADS*MAX_SIZE))
 
     print("Results Shape:")
