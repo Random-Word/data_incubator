@@ -65,6 +65,7 @@ MAX_SIZE = 10000000
 data_set = gen_data(MAX_SIZE,60)
 data_set2 = gen_data(MAX_SIZE,60)
 data_set3 = gen_data(MAX_SIZE,60)
+data_set = np.vstack((data_set, data_set2, data_set3))
 print("Q1:")
 print(at_least_at(data_set, 10, 3))
 
