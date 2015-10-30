@@ -7,7 +7,7 @@ import itertools
 import functools
 import time
 
-MAX_SIZE = 10000000
+MAX_SIZE = 100000
 STEPS = 60
 THREADS = 15
 
@@ -16,15 +16,15 @@ def euclidean(data):
             (data[:, 1].astype(np.float64,copy=False)**2))
 
 def at_least_at(data_set, step, distance):
-    total = np.sum(
-        euclidean(data_set[:, step-1, :]) >= distance)
-    return total, data_set.shape[0], total/data_set.shape[0]
+    made_it = np.zeros((data_set.shape[0]), dtype=bool)
+    made_it = euclidean(data_set[:, step-1, :]) >= distance
+    return made_it
 
 def at_least_by(data_set, step, distance):
     passed = np.zeros((data_set.shape[0]), dtype=bool)
     for s in range(step):
         passed[euclidean(data_set[:, s, :]) >= distance] = 1
-    return np.sum(passed), passed.size, np.sum(passed)/passed.size
+    return passed
 
 def across_the_iron_curtain(data_set, step):
     east = np.zeros((data_set.shape[0]), dtype=bool)
@@ -32,19 +32,19 @@ def across_the_iron_curtain(data_set, step):
     for s in range(step):
         east[data_set[:,s,0]>0] = True
     west[np.logical_and(east, data_set[:,step-1,0]<0)] = True
-    return np.sum(west), west.size, np.sum(west)/west.size
+    return west
 
 def avg_moves_to_distance(data_set, distance):
     not_reached_mark = np.ndarray((data_set.shape[0]), dtype = np.bool)
     not_reached_mark[:] = True
-    steps_required = np.zeros((data_set.shape[0]), dtype = np.int8)
+    steps_required = np.zeros((data_set.shape[0]), dtype = np.uint8)
     for s in range(data_set.shape[1]):
         made_it = euclidean(data_set[:,s,:])>=distance
         steps_required[np.logical_and(not_reached_mark, made_it)] = s
         not_reached_mark[made_it] = False
-    steps_required = steps_required[steps_required!=0]
+    steps_required = steps_required[steps_required!=0] #Biased estimator
     samples = steps_required.size
-    return steps_required, samples, np.mean(steps_required)
+    return steps_required
 
 def gen_data(iterations, steps):
     data_set = np.ndarray((iterations, steps, 2), dtype=np.int8)
@@ -61,39 +61,39 @@ def gen_data(iterations, steps):
 def gen_async(thread_count, pool):
     to_return = list()
     for i in range(thread_count):
-        to_return.append(pool.apply_async(gen_data,[MAX_SIZE,STEPS]))
+        to_return.append(pool.apply_async(gen_results))
     return to_return
 
+def gen_results():
+    data_set = gen_data(MAX_SIZE,STEPS)
+    results = np.zeros((6,data_set.shape[0]), dtype='bool')
+    results[0,:] = at_least_at(data_set, 10, 3)
+    results[1,:] = at_least_at(data_set, 60, 10)
+    results[2,:] = at_least_by(data_set, 10, 5)
+    results[3,:] = at_least_by(data_set, 60, 10)
+    results[4,:] = across_the_iron_curtain(data_set, 10)
+    results[5.:] = across_the_iron_curtain(data_set, 30)
+    return results
 
 if __name__ == '__main__':
     print("Generating data...")
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
 
-    data_set = np.vstack([x.get() for x in gen_async(THREADS, pool)])
-    print("DS Shape:")
-    print(data_set.shape)
+    results = np.zeros((6,THREADS,MAX_SIZE),dtype=bool)
+    for i, x in enumerate(gen_async(THREADS, pool)):
+        results[:,i,:]=x.get()
+    print("TESTING:")
+    for i in range(THREADS):
+        print(np.sum(results[0,i,:]))
+        print(np.sum(results[0,i,:])/results.shape[2])
+    results = np.reshape(results, (6,THREADS*MAX_SIZE))
 
-    print("Q1:")
-    print(at_least_at(data_set, 10, 3))
+    print("Results Shape:")
+    print(results.shape)
 
-    print("Q2:")
-    print(at_least_at(data_set, 60, 10))
-
-    print("Q3:")
-    print(at_least_by(data_set, 10, 5))
-
-    print("Q4:")
-    print(at_least_by(data_set, 60, 10))
-
-    print("Q5:")
-    print(across_the_iron_curtain(data_set, 10))
-
-    print("Q6:")
-    print(across_the_iron_curtain(data_set, 30))
-
-    print("Q7:")
-    print(avg_moves_to_distance(data_set, 10))
-
-    #print("Q8:")
-    #print(avg_moves_to_distance(data_set, 60))
+    for i in range(results.shape[0]):
+        print("Q%d:"%(i))
+        s = np.sum(results[i,:])
+        print(s)
+        print(repr(s/results.shape[1]))
