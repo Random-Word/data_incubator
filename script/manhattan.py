@@ -24,7 +24,8 @@ def thresholder(f, threshold):
     return np.sqrt((x**2+y**2)) >= threshold
 
 def euclidean(data):
-    return np.sqrt(data[:, 0]**2 + data[:, 1]**2)
+    return np.sqrt((data[:, 0].astype(np.float64,copy=False)**2)+
+	(data[:, 1].astype(np.float64,copy=False)**2))
 
 def at_least_at(data_set, step, distance):
     return (np.sum(
@@ -46,7 +47,7 @@ def across_the_iron_curtain(data_set, step):
     return np.sum(west)/west.size
 
 def gen_data(iterations, steps):
-    data_set = np.ndarray((iterations, steps, 2))
+    data_set = np.ndarray((iterations, steps, 2), dtype=np.int8)
     optionsx = [1, 0, -1, 0]
     optionsy = [1, -1]
     for s in range(steps-1):
@@ -61,8 +62,9 @@ def gen_data(iterations, steps):
 #timed = functools.partial(Q1, thresholder, 10, 3, 10000)
 print("Generating data...")
 MAX_SIZE = 10000000
-data_set = gen_data(MAX_SIZE, 60)
-
+data_set = gen_data(MAX_SIZE,60)
+data_set2 = gen_data(MAX_SIZE,60)
+data_set3 = gen_data(MAX_SIZE,60)
 print("Q1:")
 print(at_least_at(data_set, 10, 3))
 
