@@ -9,7 +9,7 @@ import time
 
 MAX_SIZE = 10000000
 STEPS = 60
-THREADS = 1500
+THREADS = 15
 
 def euclidean(data):
     return np.sqrt((data[:, 0].astype(np.float64,copy=False)**2)+
@@ -75,21 +75,41 @@ def gen_results():
     results[5.:] = across_the_iron_curtain(data_set, 30)
     return results
 
+def explore_recursive(distance_limit=10):
+    return __explore_recusrsive(np.array([0,0]), 0, 10)
+
+def __explore_recursive(xy, steps, distance_limit):
+    xy+=random.choice([-1,0],[1,0],[0,1][0,-1])
+    steps+=1
+    if np.sqrt(xy[0]**2+xy[1]**2) < distance_limit:
+        return __explore_recursive(xy, steps, distance_limit)
+    return steps
+
+one_to_six = False
+
 if __name__ == '__main__':
-    print("Generating data...")
+    if one_to_six:
+        print("Generating data...")
 
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())
+        pool = multiprocessing.Pool(multiprocessing.cpu_count())
 
-    results = np.zeros((6,THREADS,MAX_SIZE),dtype=bool)
-    for i, x in enumerate(gen_async(THREADS, pool)):
-        results[:,i,:]=x.get()
-    results = np.reshape(results, (6,THREADS*MAX_SIZE))
+        results = np.zeros((6,THREADS,MAX_SIZE),dtype=bool)
+        for i, x in enumerate(gen_async(THREADS, pool)):
+            results[:,i,:]=x.get()
+        results = np.reshape(results, (6,THREADS*MAX_SIZE))
 
-    print("Results Shape:")
-    print(results.shape)
+        print("Results Shape:")
+        print(results.shape)
 
-    for i in range(results.shape[0]):
-        print("Q%d:"%(i))
-        s = np.sum(results[i,:])
-        print(s)
-        print(repr(s/results.shape[1]))
+        for i in range(results.shape[0]):
+            print("Q%d:"%(i))
+            s = np.sum(results[i,:])
+            print(s)
+            print(repr(s/results.shape[1]))
+    else:
+        pool = multiprocessing.Pool(multiprocessing.cpu_count())
+        results = np.zeros((THREADS),dtype=np.int16)
+        pending = [pool.apply_async(explore_recursive) for _ in range(THREADS)]
+        for i, pend in enumerate(pending):
+            results[i] = pend.get()
+            print(results)
