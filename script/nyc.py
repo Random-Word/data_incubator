@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import multiprocessing
+import functools
 
 DATA_PATH = '../data/rows.csv'
 R = 6371 #Radius of the Earth in km
@@ -45,18 +46,24 @@ lon_dist = lat_lon_dist(mean_lat, mean_lon+lon_std, mean_lat,
 print(np.pi*lon_dist*lat_dist)
 """
 
-Q3_reader = pd.read_csv(DATA_PATH, chunksize=1000, usecols=['Created Date'])
+Q3_reader = pd.read_csv(DATA_PATH, chunksize=10000, usecols=['Created Date'])
 pool = multiprocessing.Pool(multiprocessing.cpu_count())
 
-result = pool.map_async(pd.DatetimeIndex, Q3_reader)
-while (not result.read()):
-    remaining = rs._number_left
-    print("Waiting for %d tasks to complete..."%(remaining))
-    time.sleep(2)
-Q3_data = pd.concat(result.get())
+tdt = functools.partial(pd.to_datetime, errors='coerce', infer_datetime_format=True)
 
-Q3_data.to_pickle("date_times")
+result = pool.map_async(tdt, Q3_reader)
+#while (not result.ready()):
+#    remaining = result._number_left
+#    print("Waiting for %d tasks to complete..."%(remaining))
+#    time.sleep(2)
+output = result.get()
+pickle.dump(output, "date_list")
+print(output)
 
-print(Q3_data.describe())
-print(Q3_data.hour)
-print(Q3_data.hour.value_counts())
+#Q3_data = pd.concat(output)
+
+#Q3_data.to_pickle("date_times")
+
+#print(Q3_data.describe())
+#print(Q3_data.hour)
+#print(Q3_data.hour.value_counts())

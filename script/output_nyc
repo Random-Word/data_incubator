@@ -1,0 +1,37 @@
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.4/dist-packages/pandas/tseries/tools.py", line 380, in _convert_listlike
+    values, tz = tslib.datetime_to_datetime64(arg)
+  File "pandas/tslib.pyx", line 1426, in pandas.tslib.datetime_to_datetime64 (pandas/tslib.c:26706)
+ValueError: Buffer has wrong number of dimensions (expected 1, got 2)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.4/multiprocessing/pool.py", line 119, in worker
+    result = (True, func(*args, **kwds))
+  File "/usr/lib/python3.4/multiprocessing/pool.py", line 44, in mapstar
+    return list(map(*args))
+  File "/usr/local/lib/python3.4/dist-packages/pandas/util/decorators.py", line 89, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.4/dist-packages/pandas/tseries/tools.py", line 276, in to_datetime
+    unit=unit, infer_datetime_format=infer_datetime_format)
+  File "/usr/local/lib/python3.4/dist-packages/pandas/tseries/tools.py", line 395, in _to_datetime
+    return _convert_listlike(arg, box, format)
+  File "/usr/local/lib/python3.4/dist-packages/pandas/tseries/tools.py", line 383, in _convert_listlike
+    raise e
+  File "/usr/local/lib/python3.4/dist-packages/pandas/tseries/tools.py", line 372, in _convert_listlike
+    require_iso8601=require_iso8601)
+  File "pandas/tslib.pyx", line 1828, in pandas.tslib.array_to_datetime (pandas/tslib.c:36835)
+ValueError: Buffer has wrong number of dimensions (expected 1, got 2)
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "./nyc.py", line 59, in <module>
+    output = result.get()
+  File "/usr/lib/python3.4/multiprocessing/pool.py", line 599, in get
+    raise self._value
+ValueError: Buffer has wrong number of dimensions (expected 1, got 2)

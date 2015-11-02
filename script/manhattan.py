@@ -9,7 +9,8 @@ import time
 
 MAX_SIZE = 10000000
 STEPS = 60
-THREADS = 15
+#THREADS = 1500
+THREADS = 15000000
 
 def euclidean(data):
     return np.sqrt((data[:, 0].astype(np.float64,copy=False)**2)+
@@ -75,14 +76,12 @@ def gen_results():
     results[5.:] = across_the_iron_curtain(data_set, 30)
     return results
 
-def explore_recursive(distance_limit=10):
-    return __explore_recusrsive(np.array([0,0]), 0, 10)
-
-def __explore_recursive(xy, steps, distance_limit):
-    xy+=random.choice([-1,0],[1,0],[0,1][0,-1])
-    steps+=1
-    if np.sqrt(xy[0]**2+xy[1]**2) < distance_limit:
-        return __explore_recursive(xy, steps, distance_limit)
+def explore_recursive(distance_limit=60):
+    xy = np.array([0,0])
+    steps=0
+    while np.sqrt(xy[0]**2+xy[1]**2) < distance_limit:
+        xy+=random.choice([[-1,0],[1,0],[0,1],[0,-1]])
+        steps+=1
     return steps
 
 one_to_six = False
@@ -112,4 +111,5 @@ if __name__ == '__main__':
         pending = [pool.apply_async(explore_recursive) for _ in range(THREADS)]
         for i, pend in enumerate(pending):
             results[i] = pend.get()
-            print(results)
+        print(results.shape)
+        print(results.mean())
